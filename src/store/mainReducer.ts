@@ -2,7 +2,7 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import { RootState } from '../store';
 
 //component为string也可以做进一步的限制
-type CurComponentType={[index: string]: unknown}&{ component:string}
+export type CurComponentType={[index: string]: unknown}&{ component:string }
 
 type MainStateType={
     initializing:object[]|null,

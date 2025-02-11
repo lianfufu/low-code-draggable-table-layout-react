@@ -1,0 +1,21 @@
+.widget-shape{
+  position: relative;
+  width:100%;
+  &:hover{
+    outline:1px dashed $color-theme;
+  }
+  .operate-bar{
+    width: 30px;
+    text-align: center;
+    height:20px;
+    line-height:20px;
+    position: absolute;
+    top:0;
+    right:-35px;
+    background-color: #cccccc;
+    z-index: 996;
+  }
+}
+.drag:hover{
+  cursor: default;
+}

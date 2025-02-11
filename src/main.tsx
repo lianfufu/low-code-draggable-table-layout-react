@@ -8,7 +8,7 @@ import {Provider} from "react-redux";
 import store from "./store";
 
 import '@/utils/adapter.js'
-// import {registerCustomComponents} from "@/utils/globalRegister"
+// import {registerCustomComponents} from "@/dndManager/globalRegister"
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
