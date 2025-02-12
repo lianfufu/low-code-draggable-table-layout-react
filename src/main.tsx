@@ -10,7 +10,7 @@ import store from "./store";
 import '@/utils/adapter.js'
 // import {registerCustomComponents} from "@/dndManager/globalRegister"
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('app')!).render(
   <StrictMode>
     <Provider store={store}>
         <RouterProvider router={router}></RouterProvider>

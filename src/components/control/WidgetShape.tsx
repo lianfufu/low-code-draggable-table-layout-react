@@ -1,6 +1,6 @@
 
 import styles from "./WidgetShape.module.scss";
-import React from "react";
+import React, {useEffect, useRef} from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import {RootState} from "@/store"
 import {CurComponentType, setCurComponent} from "@/store/mainReducer.ts";
@@ -12,25 +12,33 @@ export default function WidgetShape({name="物料实例",curComponent=null,delet
     const isSelected=storeCurComponent?.id===curComponent!.id;
     const dispatch=useDispatch();
 
+    const widgetShapeDiv=useRef<HTMLDivElement>(null);
+    // useEffect(() => {
+    //     if(widgetShapeDiv.current){
+    //         widgetShapeDiv.current.addEventListener("click",()=>{
+    //             console.log("dian击了最外层div");
+    //         },true);
+    //     }
+    // }, []);
     function stopPropagation(event){
         event.stopPropagation();
     }
     function doSetCurComponent(event){
         stopPropagation(event);
-        console.log("点击后设置store的curComponent的值",curComponent);
         dispatch(setCurComponent(curComponent));
     }
     function doDeleteComponent(event){
+        console.log("执行了删除widgetshape");
         stopPropagation(event);
         deleteWidget(curComponent);
     }
 
     return (
-        <div className={`${styles.widgetShape} ${styles.drag}`} onClick={(event=>doSetCurComponent(event))}>
+        <div ref={widgetShapeDiv} className={`${styles.widgetShape} ${styles.drag}`} onClick={(event)=>doSetCurComponent(event)}>
             <div className={styles.operateBar}>
                 {
-                    isSelected?<div className="f14" onClick={(event => doDeleteComponent(event))}>x</div>:
-                        <div className="f14" onClick={(event=>stopPropagation(event))}>{ name }</div>
+                    isSelected?<div className="f14" onClick={(event )=> doDeleteComponent(event)}>x</div>:
+                        <div className="f14" onClick={(event)=>stopPropagation(event)}>{ name }</div>
                 }
             </div>
             {children}

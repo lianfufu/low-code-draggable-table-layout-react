@@ -5,13 +5,16 @@ import isEqual from "lodash/isEqual"; // 使用深比较
 import {produce} from "immer";
 import {CurComponentType,setCurComponent} from "@/store/mainReducer.ts";
 import {useDispatch} from "react-redux";
-import McTitle from "@/components/custom-components/McTitle/McTitle.tsx";
+import McComponent from "@/components/custom-components/McComponent.tsx";
 import {IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
+import McContainer from "@/components/custom-components/McContainer/McContainer.tsx";
+import McTitle from "@/components/custom-components/McTitle/McTitle.tsx";
 
 
 type ControlNestWidgetPropsType={
     isWidget?:boolean;
     list:any[];
+    parentId?:string|number;
     cellRowIndex?:number;
     cellColIndex?:number;
     cellRowSpan?:number;
@@ -19,7 +22,7 @@ type ControlNestWidgetPropsType={
     updateTableChildData?:(item:any)=>void;
     updateList:(item:IItem[])=>void;
 }
-export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Number.NaN,cellRowIndex=Number.NaN,cellColSpan=Number.NaN,cellColIndex=Number.NaN,updateList,updateTableChildData=(item:any)=>{}}:ControlNestWidgetPropsType){
+export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Number.NaN,cellRowIndex=Number.NaN,cellColSpan=Number.NaN,cellColIndex=Number.NaN,parentId="",updateList,updateTableChildData=(item:any)=>{}}:ControlNestWidgetPropsType){
 
     const [writableList, setWritableList] = useState<any[]>(list);
     const dispatch=useDispatch();
@@ -86,10 +89,14 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
             return;
         }
         console.log("执行删除失败-前半部");
+        const matchedIndex = writableList.findIndex((item) => item === component);
         const newList = produce(writableList, (draft) => {
-            const index = draft.findIndex((item) => item === component);
-            if (index !== -1) draft.splice(index, 1);
+            // const index = draft.findIndex((item) => Object.is(item,component));
+            // console.log(draft,writableList);
+            // console.log("index",index);//-1
+            if (matchedIndex !== -1) draft.splice(matchedIndex, 1);
         });
+        console.log("newList",newList,writableList[0]===component);//true
         setWritableList(newList);
         dispatch(setCurComponent(null));
 
@@ -104,10 +111,16 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
                 writableList?.length>0? list?.map(element=>(
                         element.component!=='MCTextContainer'&&
                         <WidgetShape deleteWidget={deleteWidget} curComponent={element} key={element.id} name={element.name}>
-                            <McTitle/>
+                            <McComponent is={element.component} curComponent={element} id={element.id}>
+                                            {element.component==="McContainer"&&
+                                                <ControlNestWidget parentId={element.id} list={element.children}
+                                                                updateList={(value) => {
+                                                                    element.children = value
+                                                                }} isWidget={true}/>}
+                            </McComponent>
                         </WidgetShape>
                     )):
-                    <DropArea parentId={"zero"} height={isWidget?"30px":"600px"}/>
+                    <DropArea parentId={parentId||"zero"} height={isWidget?"30px":"800px"}>{isWidget?"":"drop here"}</DropArea>
             }
         </div>
     )

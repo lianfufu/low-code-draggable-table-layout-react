@@ -3,17 +3,19 @@ import LeftWidgetTemplateList from "@/components/home-components/page-body-compo
 import {useMemo, useState} from "react";
 import {flatten} from "@/components/dnd-components/dndManager/DNDDataUtils.ts";
 import {IFlattenedItem, IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
-import {DragEndEvent, DragMoveEvent, DragStartEvent, UniqueIdentifier} from "@dnd-kit/core";
+import {DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, UniqueIdentifier} from "@dnd-kit/core";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store";
 import genNewItems, {findActiveItem} from "@/components/dnd-components/dndManager/NewItemGenerationManager.ts";
 import cloneInsertActiveItem from "@/components/dnd-components/dndManager/CloneItemInsertManger.ts";
 import MyDNDContext from "@/components/dnd-components/MyDNDContext.tsx";
 import ControlNestWidget from "@/components/control/ControlNestWidget.tsx";
+import DragOverlayContent from "@/components/home-components/page-body-components/DragOverlayContent.tsx";
 export default function PageBody(){
     const {
         items,
         setItems,
+        activeId,
         activeItem,
         handleDragStart,
         handleDragMove,
@@ -39,6 +41,9 @@ export default function PageBody(){
                         </div>
                     </div>
                 </div>
+                <DragOverlay>
+                    <DragOverlayContent activeItem={activeItem}/>
+                </DragOverlay>
             </MyDNDContext>
             <div className="control-config">
                 <custom-schema-template/>
@@ -101,6 +106,7 @@ function ManagerDNDItems(){
         }
         let inputOverId=isInsertIntoChildren?parentId:over.id.toString();
         const overIndex = flattenedItems.findIndex((i) => i.id === overId);
+        console.log(items,{...activeItem,id:activeItem.id+'-copy'+Date.now()},flattenedItems,inputOverId,overIndex,isInsertIntoChildren);
         const newItems =!isCloneItem? genNewItems(
             items,
             flattenedItems,
@@ -117,6 +123,7 @@ function ManagerDNDItems(){
 
     return {
         items,
+        activeId,
         setItems,
         activeItem,
         handleDragStart,
