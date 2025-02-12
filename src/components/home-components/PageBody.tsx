@@ -11,6 +11,8 @@ import cloneInsertActiveItem from "@/components/dnd-components/dndManager/CloneI
 import MyDNDContext from "@/components/dnd-components/MyDNDContext.tsx";
 import ControlNestWidget from "@/components/control/ControlNestWidget.tsx";
 import DragOverlayContent from "@/components/home-components/page-body-components/DragOverlayContent.tsx";
+import CustomSchemaTemplate from "@/components/control/CustomSchemaTemplate.tsx";
+import {selectCurFields} from "@/store/mainReducer.ts";
 export default function PageBody(){
     const {
         items,
@@ -22,10 +24,14 @@ export default function PageBody(){
         handleDragEnd
     } = ManagerDNDItems();
 
-    //const [widgets,setWidgets] = useState<any[]>([]);
+    // const [widgets,setWidgets] = useState<any[]>([]);
     // const handlerUpdateTableChildData=(list:any[])=>{
     //     setWidgets(list);
     // }
+
+    const curComponent=useSelector((state:RootState)=>state.main.curComponent);
+    const curFields=useSelector((state:RootState)=>selectCurFields(state));
+
     const handlerUpdateList=(items:IItem[])=>{
         setItems(items);
     }
@@ -46,10 +52,14 @@ export default function PageBody(){
                 </DragOverlay>
             </MyDNDContext>
             <div className="control-config">
-                <custom-schema-template/>
+                {
+                    curComponent&&<CustomSchemaTemplate curFields={curFields} component={curComponent}/>
+                }
                 <div className="widget-config-source">
                     <span style={{color:'dodgerblue'}} className="f13">物料数据：</span>
-                    <span style={{wordBreak:"break-all",wordWrap:"break-word"}}>无</span>
+                    {curComponent?
+                        <div>json数据</div>:
+                        (<span style={{wordBreak: "break-all", wordWrap: "break-word"}}>无</span>)}
                 </div>
             </div>
         </div>

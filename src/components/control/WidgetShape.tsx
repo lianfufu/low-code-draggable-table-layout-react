@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import {RootState} from "@/store"
 import {CurComponentType, setCurComponent} from "@/store/mainReducer.ts";
 
+
 //如何看curComponent可能有id属性
 //看看Widget是否可以做性能优化
 export default function WidgetShape({name="物料实例",curComponent=null,deleteWidget,children}:{name?:string,curComponent?:CurComponentType|null,children:React.ReactNode,deleteWidget:(item:any)=>void}){
@@ -37,7 +38,7 @@ export default function WidgetShape({name="物料实例",curComponent=null,delet
         <div ref={widgetShapeDiv} className={`${styles.widgetShape} ${styles.drag}`} onClick={(event)=>doSetCurComponent(event)}>
             <div className={styles.operateBar}>
                 {
-                    isSelected?<div className="f14" onClick={(event )=> doDeleteComponent(event)}>x</div>:
+                    isSelected?<div data-no-drag="true" className="f14" onClick={(event )=> doDeleteComponent(event)}>x</div>:
                         <div className="f14" onClick={(event)=>stopPropagation(event)}>{ name }</div>
                 }
             </div>

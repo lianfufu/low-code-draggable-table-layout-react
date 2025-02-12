@@ -40,11 +40,14 @@ const mainSlice = createSlice({
 export const { setInitializing,setCurComponent, setFields, setCurFields } = mainSlice.actions;
 
 export const selectCurFields = (state: RootState) => {
+    console.log("更新curComponent会重新执行计算curFields",state.main.curComponent?.component);
     if(state.main.curComponent?.component==="McImg"||
         state.main.curComponent?.component==="McTab"||
         state.main.curComponent?.component==="McTable"||
-        state.main.curComponent?.component==="McTitle"){
+        state.main.curComponent?.component==="McTitle"||
+        state.main.curComponent?.component==="McContainer"){
         if(state.main.curComponent?.component&&state.main.fields![state.main.curComponent.component]){
+            console.log("更新curComponent会重新执行计算curFields2",state.main.fields![state.main.curComponent.component]);
             return state.main.fields![state.main.curComponent.component];
         }
     }else{

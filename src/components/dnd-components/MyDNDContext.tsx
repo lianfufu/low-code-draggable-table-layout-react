@@ -14,6 +14,7 @@ import React, {memo} from "react";
 import {DragOverEvent} from "@dnd-kit/core/dist/types";
 import {useDispatch} from "react-redux";
 import {setCurComponent} from "@/store/mainReducer.ts";
+import {CustomMouseSensor} from "@/components/dnd-components/dndManager/CustomMouseSensor.ts";
 
 type DNDContextProps={
     handleDragEnd:(e: DragEndEvent) => void,
@@ -26,7 +27,7 @@ const MyDNDContext =memo(function (props:DNDContextProps) {
     console.log("执行了MyDNDContext重新渲染");
     const {handleDragEnd,children,...otherProps} = props;
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(CustomMouseSensor),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,
         })
