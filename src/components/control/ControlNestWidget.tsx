@@ -117,8 +117,8 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
                                             {element.component==="McContainer"&&
                                                 <ControlNestWidget parentId={element.id} list={element.children}
                                                                 updateList={(value) => {
-                                                                    // element.children = value
                                                                     updateList(value);
+
                                                                 }} isWidget={true}/>}
                             </McComponent>
                         </WidgetShape>

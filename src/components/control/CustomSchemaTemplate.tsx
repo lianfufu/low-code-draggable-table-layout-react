@@ -14,8 +14,6 @@ function CustomSchemaTemplate({component,curFields={},parentKeysStr=""}:{compone
         dispatch(updateCurComponent({fullPathKey:parentKeysStr+" " + curKey, value}));
     },[]);
 
-
-
     return (
         <ul>
             {

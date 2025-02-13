@@ -16,7 +16,6 @@ import {selectCurFields} from "@/store/mainReducer.ts";
 import JSONPretty from 'react-json-pretty';
 import {produce} from "immer";
 
-
 export default function PageBody(){
     const {
         items,

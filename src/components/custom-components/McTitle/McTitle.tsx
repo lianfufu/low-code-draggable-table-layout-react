@@ -11,6 +11,7 @@ type McTitlePropsType={
         titleSize:string,
     },
 }
+
 export default function McTitle({title="defaultText",model="left",styles={},opacity=1}:McTitlePropsType) {
     console.log("McTitle重新渲染了",title);
     const titleStyles=useMemo(()=>{
