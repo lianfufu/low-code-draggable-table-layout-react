@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import { RootState } from '../store';
+import {values} from "lodash";
 
 //component为string也可以做进一步的限制
 export type CurComponentType={[index: string]: unknown}&{ component:string }
@@ -28,6 +29,24 @@ const mainSlice = createSlice({
         setCurComponent(state, action: PayloadAction<CurComponentType|null>){
             state.curComponent = action.payload;
         },
+        updateCurComponent(state,action:PayloadAction<{fullPathKey:string,value:any}>){
+            console.log(action.payload.fullPathKey,action.payload.value);
+            const pathKeyArr=action.payload.fullPathKey.split(" ");
+            let curLevelStateValue=state.curComponent;
+            console.log(curLevelStateValue,pathKeyArr,"updateCurComponent");
+            for(let i=0;i<pathKeyArr.length;i++){
+                const curKey=pathKeyArr[i];
+                if(!curKey){
+                    continue;
+                }
+                if(i<pathKeyArr.length-1){
+                    curLevelStateValue=curLevelStateValue[curKey];
+                    continue;
+                }
+                curLevelStateValue[curKey]=action.payload.value;
+            }
+            console.log(state.curComponent.title,"curlevelStateValue");
+        },
         setFields(state, action: PayloadAction<object|null>){
             state.fields = action.payload;
         },
@@ -37,14 +56,17 @@ const mainSlice = createSlice({
     }
 })
 
-export const { setInitializing,setCurComponent, setFields, setCurFields } = mainSlice.actions;
+export const { setInitializing,setCurComponent,updateCurComponent, setFields, setCurFields } = mainSlice.actions;
 
 export const selectCurFields = (state: RootState) => {
+    console.log("更新curComponent会重新执行计算curFields",state.main.curComponent?.component);
     if(state.main.curComponent?.component==="McImg"||
         state.main.curComponent?.component==="McTab"||
         state.main.curComponent?.component==="McTable"||
-        state.main.curComponent?.component==="McTitle"){
+        state.main.curComponent?.component==="McTitle"||
+        state.main.curComponent?.component==="McContainer"){
         if(state.main.curComponent?.component&&state.main.fields![state.main.curComponent.component]){
+            console.log("更新curComponent会重新执行计算curFields2",state.main.fields![state.main.curComponent.component]);
             return state.main.fields![state.main.curComponent.component];
         }
     }else{

@@ -5,13 +5,16 @@ import isEqual from "lodash/isEqual"; // 使用深比较
 import {produce} from "immer";
 import {CurComponentType,setCurComponent} from "@/store/mainReducer.ts";
 import {useDispatch} from "react-redux";
-import McTitle from "@/components/custom-components/McTitle/McTitle.tsx";
+import McComponent from "@/components/custom-components/McComponent.tsx";
 import {IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
+import McContainer from "@/components/custom-components/McContainer/McContainer.tsx";
+import McTitle from "@/components/custom-components/McTitle/McTitle.tsx";
 
 
 type ControlNestWidgetPropsType={
     isWidget?:boolean;
     list:any[];
+    parentId?:string|number;
     cellRowIndex?:number;
     cellColIndex?:number;
     cellRowSpan?:number;
@@ -19,13 +22,14 @@ type ControlNestWidgetPropsType={
     updateTableChildData?:(item:any)=>void;
     updateList:(item:IItem[])=>void;
 }
-export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Number.NaN,cellRowIndex=Number.NaN,cellColSpan=Number.NaN,cellColIndex=Number.NaN,updateList,updateTableChildData=(item:any)=>{}}:ControlNestWidgetPropsType){
+export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Number.NaN,cellRowIndex=Number.NaN,cellColSpan=Number.NaN,cellColIndex=Number.NaN,parentId="",updateList,updateTableChildData=(item:any)=>{}}:ControlNestWidgetPropsType){
 
     const [writableList, setWritableList] = useState<any[]>(list);
     const dispatch=useDispatch();
     // 监听父组件传入的 list 变化
     useEffect(() => {
         if (!isEqual(list, writableList)) {
+            console.log("执行了ControlNestWidget重新渲染",list);
             setWritableList(list);
         }
     }, [list]);
@@ -75,21 +79,26 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
             if (!isEqual(newWritableList, writableList)) {
                 setWritableList(newWritableList); // 更新本地状态
             }
-            updateList(newWritableList); // 通知父组件（类似 Vue 的 emits）
+            updateList(newWritableList); // 通知父组件（类似 Vue 的 emits），如果是双层嵌套表格，此处便不再奏效了
         }else{
-            updateList(writableList);
+            updateList(writableList);//直接调用外层setItems把writableList传进去是否妥当，好像挺对的。但是谁有能确保writableList一直是最外层的那个list呢。
+            //合理的思路是，当curComponent发生改变时，每一层的useEffect都要监听变化。判断
         }
-    },[writableList, cellRowIndex, cellColIndex, cellRowSpan, cellColSpan]);
+    },[writableList, cellRowIndex, cellColIndex, cellRowSpan, cellColSpan]);//由于修改curComponent，不会影响到writableList深层次的值，因此此处就算是深层次监听其变化也都无效了。但拖入内容做深层次监听还是有必要的
 
     function deleteWidget(component:CurComponentType|null){
         if(!component){
             return;
         }
         console.log("执行删除失败-前半部");
+        const matchedIndex = writableList.findIndex((item) => item === component);
         const newList = produce(writableList, (draft) => {
-            const index = draft.findIndex((item) => item === component);
-            if (index !== -1) draft.splice(index, 1);
+            // const index = draft.findIndex((item) => Object.is(item,component));
+            // console.log(draft,writableList);
+            // console.log("index",index);//-1
+            if (matchedIndex !== -1) draft.splice(matchedIndex, 1);
         });
+        console.log("newList",newList,writableList[0]===component);//true
         setWritableList(newList);
         dispatch(setCurComponent(null));
 
@@ -104,10 +113,17 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
                 writableList?.length>0? list?.map(element=>(
                         element.component!=='MCTextContainer'&&
                         <WidgetShape deleteWidget={deleteWidget} curComponent={element} key={element.id} name={element.name}>
-                            <McTitle/>
+                            <McComponent is={element.component} curComponent={element} id={element.id}>
+                                            {element.component==="McContainer"&&
+                                                <ControlNestWidget parentId={element.id} list={element.children}
+                                                                updateList={(value) => {
+                                                                    // element.children = value
+                                                                    updateList(value);
+                                                                }} isWidget={true}/>}
+                            </McComponent>
                         </WidgetShape>
                     )):
-                    <DropArea parentId={"zero"} height={isWidget?"30px":"600px"}/>
+                    <DropArea parentId={parentId||"zero"} height={isWidget?"30px":"800px"}>{isWidget?"":"drop here"}</DropArea>
             }
         </div>
     )

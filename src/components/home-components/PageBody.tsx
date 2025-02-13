@@ -1,32 +1,79 @@
 import "./PageBody.scss"
 import LeftWidgetTemplateList from "@/components/home-components/page-body-components/LeftWidgetTemplateList.tsx";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {flatten} from "@/components/dnd-components/dndManager/DNDDataUtils.ts";
 import {IFlattenedItem, IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
-import {DragEndEvent, DragMoveEvent, DragStartEvent, UniqueIdentifier} from "@dnd-kit/core";
+import {DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, UniqueIdentifier} from "@dnd-kit/core";
 import {useSelector} from "react-redux";
 import {RootState} from "@/store";
 import genNewItems, {findActiveItem} from "@/components/dnd-components/dndManager/NewItemGenerationManager.ts";
 import cloneInsertActiveItem from "@/components/dnd-components/dndManager/CloneItemInsertManger.ts";
 import MyDNDContext from "@/components/dnd-components/MyDNDContext.tsx";
 import ControlNestWidget from "@/components/control/ControlNestWidget.tsx";
+import DragOverlayContent from "@/components/home-components/page-body-components/DragOverlayContent.tsx";
+import CustomSchemaTemplate from "@/components/control/CustomSchemaTemplate.tsx";
+import {selectCurFields} from "@/store/mainReducer.ts";
+import JSONPretty from 'react-json-pretty';
+import {produce} from "immer";
+
+
 export default function PageBody(){
     const {
         items,
         setItems,
+        activeId,
         activeItem,
         handleDragStart,
         handleDragMove,
         handleDragEnd
     } = ManagerDNDItems();
 
-    //const [widgets,setWidgets] = useState<any[]>([]);
+    // const [widgets,setWidgets] = useState<any[]>([]);
     // const handlerUpdateTableChildData=(list:any[])=>{
     //     setWidgets(list);
     // }
+
+    const curComponent=useSelector((state:RootState)=>state.main.curComponent);
+    const curFields=useSelector((state:RootState)=>selectCurFields(state));
+
     const handlerUpdateList=(items:IItem[])=>{
-        setItems(items);
+        // setItems(items);
     }
+
+    useEffect(() => {
+        console.log("当前的curComponent已经变了","id是",curComponent?.id);
+        if(!curComponent?.id){
+            return;
+        }
+        const newItems = produce(items,(draft)=>{
+            function recurseMatchAndUpdateCurComponent(inputItems:IItem[]|null){
+                if(!inputItems||inputItems.length===0){
+                    return;
+                }
+                for(let item of inputItems){
+                    if(item.id===curComponent.id){
+                        // console.log(item.title,"item.title");
+                        // item.title=curComponent.title;
+                        for(let key in item){
+                            if(item.hasOwnProperty(key)){
+                                if(curComponent[key]!==null&&curComponent[key]!==undefined){
+                                    item[key]=curComponent[key];
+                                }
+                            }
+                        }
+                        return;
+                    }
+                    if(item.children){
+                        recurseMatchAndUpdateCurComponent(item.children);
+                    }
+                }
+                return;
+            }
+            recurseMatchAndUpdateCurComponent(draft);
+        });
+        setItems(newItems);
+        console.log(newItems,"curComponent改变后更关心Items");
+    }, [curComponent]);
 
     return (
         <div className="body">
@@ -39,12 +86,22 @@ export default function PageBody(){
                         </div>
                     </div>
                 </div>
+                <DragOverlay>
+                    <DragOverlayContent activeItem={activeItem}/>
+                </DragOverlay>
             </MyDNDContext>
             <div className="control-config">
-                <custom-schema-template/>
+                {
+                    curComponent&&<CustomSchemaTemplate curFields={curFields} component={curComponent}/>
+                }
                 <div className="widget-config-source">
                     <span style={{color:'dodgerblue'}} className="f13">物料数据：</span>
-                    <span style={{wordBreak:"break-all",wordWrap:"break-word"}}>无</span>
+                    {curComponent?
+                        ( <JSONPretty
+                            data={curComponent}
+                            space={4}
+                        />):
+                        (<span style={{wordBreak: "break-all", wordWrap: "break-word"}}>无</span>)}
                 </div>
             </div>
         </div>
@@ -91,7 +148,11 @@ function ManagerDNDItems(){
             console.log('Cannot drop item into its descendant')
             return
         }
-        const isCloneItem = active.data.current?.sortable.containerId==="left";
+        let isCloneItem = active.data.current?.sortable.containerId==="left";
+        if(activeItem?.id.includes("copy")){
+            console.log("为了避免拖动时bug，消失实例的问题",active.data.current?.sortable.containerId,activeItem.id);
+            isCloneItem=false;//避免奇怪的bug
+        }
         //判断拖入的是否为drop area
         let isInsertIntoChildren=false;
         let parentId="";
@@ -101,6 +162,7 @@ function ManagerDNDItems(){
         }
         let inputOverId=isInsertIntoChildren?parentId:over.id.toString();
         const overIndex = flattenedItems.findIndex((i) => i.id === overId);
+        console.log(items,{...activeItem,id:activeItem.id+'-copy'+Date.now()},flattenedItems,inputOverId,overIndex,isInsertIntoChildren);
         const newItems =!isCloneItem? genNewItems(
             items,
             flattenedItems,
@@ -117,6 +179,7 @@ function ManagerDNDItems(){
 
     return {
         items,
+        activeId,
         setItems,
         activeItem,
         handleDragStart,

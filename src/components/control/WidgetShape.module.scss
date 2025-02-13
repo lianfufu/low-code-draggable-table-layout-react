@@ -1,10 +1,10 @@
-.widget-shape{
+.widgetShape{
   position: relative;
   width:100%;
   &:hover{
     outline:1px dashed $color-theme;
   }
-  .operate-bar{
+  .operateBar{
     width: 30px;
     text-align: center;
     height:20px;

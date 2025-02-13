@@ -1,0 +1,38 @@
+{
+  "name": "容器",
+  "id": "McContainer",
+  "component": "McContainer",
+  "icon": "icon-rongqi",
+  "children": [],
+  "fields": {
+    "title": {
+      "label": "容器标题",
+      "type": "string",
+      "value": "Header"
+    },
+    "padding": {
+      "label": "上下间距",
+      "type": "number",
+      "value": 100
+    },
+    "minHeight": {
+      "label": "最小高度",
+      "type": "number",
+      "value": 50,
+      "options":{
+        "min":30,
+        "max":100
+      }
+    },
+    "headBgc": {
+      "label": "头部背景色",
+      "type": "color",
+      "value": "#DD6161"
+    },
+    "contentBgc": {
+      "label": "内容背景色",
+      "type": "color",
+      "value": "#e6e6e6"
+    }
+  }
+}

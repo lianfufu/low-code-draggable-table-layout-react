@@ -1,6 +1,7 @@
 {
   "name": "标题",
-  "id": "mcTitle",
+  "id": "McTitle",
+  "component": "McTitle",
   "icon": "icon-biaotizujian",
   "fields": {
     "title": {

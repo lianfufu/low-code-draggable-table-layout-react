@@ -1,16 +1,18 @@
 import Sortable from "@/components/dnd-components/Sortable.tsx";
-import {useMemo} from "react";
+import React, {useCallback, useEffect, useMemo, useRef} from "react";
+import {IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
 
 type McTitlePropsType={
     title?:string,
     model?:string,
+    opacity?:number,
     styles?:{
         titleColor:string,
         titleSize:string,
     },
 }
-export default function McTitle({title="默认文本",model="默认文本",styles={}}:McTitlePropsType) {
-    const id=useMemo(()=>Date.now()+Math.floor(Math.random() * 1000)+'',[]);
+export default function McTitle({title="defaultText",model="left",styles={},opacity=1}:McTitlePropsType) {
+    console.log("McTitle重新渲染了",title);
     const titleStyles=useMemo(()=>{
         if(!styles||JSON.stringify(styles)==="{}"){
             return {
@@ -28,10 +30,6 @@ export default function McTitle({title="默认文本",model="默认文本",style
         return {}
     },[title,model,styles]);//传递给自定义组件的对象要memo化处理，以防止重复渲染子组件
     return (
-          <Sortable id={id}>
-            <div style={{padding:"0 10px"}} className={"ellipsis-1"}>
-                <div style={{...titleStyles}}>{title}</div>
-            </div>
-          </Sortable>
-      )
+        <div style={{...titleStyles,opacity}}>{title}</div>
+    )
 }

@@ -11,9 +11,7 @@ function App() {
         initCustomComponentsConfig(dispatch);
     }, [dispatch]);
   return (
-    <div id="app">
       <Outlet/>
-    </div>
   )
 }
 
