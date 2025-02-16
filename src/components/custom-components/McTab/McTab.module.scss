@@ -1,0 +1,22 @@
+.wrap {
+  .wrap-body {
+    overflow-x:hidden;
+    &::-webkit-scrollbar {
+      display: none; /* Chrome Safari */
+    }
+
+    .tabs {
+      .tab-item {
+        display: inline-block;
+        text-align: center;
+
+        .tab-item-img {
+          width:100%;
+          overflow: hidden;
+          //height: 100%;
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+}

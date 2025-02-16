@@ -3,7 +3,7 @@ import WidgetShape from "@/components/control/WidgetShape.tsx";
 import {useEffect, useState} from "react";
 import isEqual from "lodash/isEqual"; // 使用深比较
 import {produce} from "immer";
-import {CurComponentType,setCurComponent} from "@/store/mainReducer.ts";
+import {CurComponentType, setCurComponent, setLastDeletedComponentId} from "@/store/mainReducer.ts";
 import {useDispatch} from "react-redux";
 import McComponent from "@/components/custom-components/McComponent.tsx";
 import {IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
@@ -98,9 +98,10 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
             // console.log("index",index);//-1
             if (matchedIndex !== -1) draft.splice(matchedIndex, 1);
         });
-        console.log("newList",newList,writableList[0]===component);//true
+        console.log("newList",newList,matchedIndex,writableList[0]===component);//true
         setWritableList(newList);
         dispatch(setCurComponent(null));
+        dispatch(setLastDeletedComponentId(component.id));
 
         // console.log(store.curComponent);
         updateTableChildData(component);

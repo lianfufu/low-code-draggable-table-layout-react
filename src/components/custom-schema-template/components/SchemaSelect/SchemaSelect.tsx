@@ -10,7 +10,6 @@ import {Button} from "antd";
 
 export default function SchemaSelect(props:baseSchemaPropsType&{data:any[]}&{value:string}) {
     const {id,label,data=[],...myBasicProps}=props;
-    myBasicProps.value="left";//此处设置默认值
 
     let {myValue,setMyValue,myOptions}=useMyBasicValue(myBasicProps);
 

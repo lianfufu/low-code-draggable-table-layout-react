@@ -1,0 +1,45 @@
+.array-body{
+  margin:20px 20px 10px;
+  overflow:hidden;
+  background-color: #f7f8fa;
+  .data-item{
+    position: relative;
+    padding:10px;
+    background-color: #fff;
+    box-shadow: 0 0.05333333rem 0.10666667rem rgba(0, 0, 0, 0.1);
+    &:hover{
+      .close-icon{
+        opacity: 1;
+        cursor: pointer;
+      }
+    }
+    .close-icon{
+      position:absolute;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:16px;
+      height:16px;
+      font-size:20px;
+      background-color: lightgray;
+      border-radius:8px;
+      right:-7px;
+      top:-7px;
+      color:red;
+      opacity: 0;
+    }
+  }
+  .add-button{
+    margin: 10px;
+    text-align: center;
+    height:40px;
+    line-height: 40px;
+    font-size: 14px;
+    border:1px $color-theme solid;
+    background-color: #fff;
+    color:$color-theme;
+    &:hover{
+      cursor:pointer;
+    }
+  }
+}

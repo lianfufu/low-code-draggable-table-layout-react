@@ -7,6 +7,7 @@ import SchemaArray from "@/components/custom-schema-template/components/SchemaAr
 import SchemaSwitch from "@/components/custom-schema-template/components/SchemaSwitch/SchemaSwitch.tsx";
 import SchemaUpload from "@/components/custom-schema-template/components/SchemaUpload/SchemaUpload.tsx";
 import SchemaColor from "@/components/custom-schema-template/components/SchemaColor/SchemaColor.tsx";
+import SchemaJump from "@/components/custom-schema-template/components/SchemaJump/SchemaJump.tsx";
 
 const SchemaComponents={
     SchemaString,
@@ -16,21 +17,24 @@ const SchemaComponents={
     SchemaArray,
     SchemaSwitch,
     SchemaUpload,
-    SchemaColor
+    SchemaColor,
+    SchemaJump
 }
 
 type SchemaComponentPropsType= {
     is:string,
     children?:React.ReactNode,
+    parentKeysStr?:string,
     [index:string]:unknown,
 }
-export default function SchemaComponent({is,children="",...otherProps}:SchemaComponentPropsType){
+export default function SchemaComponent({is,children="",parentKeysStr="",...otherProps}:SchemaComponentPropsType){
+    console.log("渲染的is组件可能会出现为undefined的情况？",is);
     const firstLetter=is[0].toUpperCase();
     const componentName="Schema"+firstLetter+is.substring(1).toLowerCase();
     const Component = SchemaComponents[componentName];
     // console.log("COmponent出现了null?",Component,componentName);
     return (
-        <Component {...otherProps}>
+        <Component {...otherProps} parentKeysStr={parentKeysStr}>
             {children}
         </Component>
     )

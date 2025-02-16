@@ -4,6 +4,8 @@ import React, {useMemo} from "react";
 import McTitle from "@/components/custom-components/McTitle/McTitle.tsx";
 import McContainer from "@/components/custom-components/McContainer/McContainer.tsx";
 import Sortable from "@/components/dnd-components/Sortable.tsx";
+import McImg from "@/components/custom-components/McImg/McImg.tsx";
+import McTab from "@/components/custom-components/McTab/McTab.tsx";
 
 type McComponentPropsType={
     children?:React.ReactNode,
@@ -14,7 +16,9 @@ type McComponentPropsType={
 }
 const ComponentsCollection={
     McContainer,
-    McTitle
+    McTitle,
+    McImg,
+    McTab
 }
 export default function McComponent(props:McComponentPropsType&{is:string}){
     const {curComponent,id="",...otherProps}=props;

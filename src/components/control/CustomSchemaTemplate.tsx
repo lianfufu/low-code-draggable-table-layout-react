@@ -19,9 +19,9 @@ function CustomSchemaTemplate({component,curFields={},parentKeysStr=""}:{compone
             {
                 entries.map((entry,index)=>(
                     <li key={index}>
-                        <SchemaComponent is={entry[1].type} {...entry[1]} value={component[entry[0]]} updateValue={(value:any)=>handleUpdateValue(entry[0],value)}>
+                        <SchemaComponent parentKeysStr={parentKeysStr+" "+entry[0]} is={entry[1].type} {...entry[1]} value={component[entry[0]]} updateValue={(value:any)=>handleUpdateValue(entry[0],value)}>
                             {
-                                entry[1].child&&(
+                                entry[1].child&&!Array.isArray(component[entry[0]])&&(
                                     <CustomSchemaTemplate component={component[entry[0]]} parentKeysStr={parentKeysStr+" "+entry[0]} curFields={entry[1].child}/>
                                 )
                             }

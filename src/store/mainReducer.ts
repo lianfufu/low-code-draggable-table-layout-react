@@ -10,13 +10,15 @@ type MainStateType={
     fields:object|null,//全部左侧的定义的各个类型的fields
     curComponent: CurComponentType|null,
     curFields: object|null // 初始化为 null 或你想要的任何默认值
+    lastDeletedComponentId:string,
 }
 
 const initialMainState:MainStateType={
     initializing:null,
     fields:null,//全部左侧的定义的各个类型的fields
     curComponent: null,
-    curFields: null // 初始化为 null 或你想要的任何默认值
+    curFields: null,// 初始化为 null 或你想要的任何默认值
+    lastDeletedComponentId:""
 }
 
 const mainSlice = createSlice({
@@ -41,8 +43,17 @@ const mainSlice = createSlice({
                 }
                 if(i<pathKeyArr.length-1){
                     curLevelStateValue=curLevelStateValue[curKey];
+                    if(curLevelStateValue===undefined&&Number.isInteger(Number(curKey))){
+                        console.log(curKey,`fullKey:${action.payload.fullPathKey}`,action.payload.value);
+                        curLevelStateValue[curKey]=action.payload.value;
+                        return;
+                    }
                     continue;
                 }
+
+                // if(curLevelStateValue===undefined&&Number.isInteger(Number(curKey))){
+                //
+                // }
                 curLevelStateValue[curKey]=action.payload.value;
             }
             console.log(state.curComponent.title,"curlevelStateValue");
@@ -53,10 +64,13 @@ const mainSlice = createSlice({
         setCurFields(state, action: PayloadAction<object|null>){
             state.curFields = action.payload;
         },
+        setLastDeletedComponentId(state, action: PayloadAction<string>){
+            state.lastDeletedComponentId = action.payload;
+        },
     }
 })
 
-export const { setInitializing,setCurComponent,updateCurComponent, setFields, setCurFields } = mainSlice.actions;
+export const { setInitializing,setCurComponent,setLastDeletedComponentId,updateCurComponent, setFields, setCurFields } = mainSlice.actions;
 
 export const selectCurFields = (state: RootState) => {
     console.log("更新curComponent会重新执行计算curFields",state.main.curComponent?.component);

@@ -4,7 +4,7 @@ import {useEffect, useMemo, useState} from "react";
 import {flatten} from "@/components/dnd-components/dndManager/DNDDataUtils.ts";
 import {IFlattenedItem, IItem} from "@/components/dnd-components/dndManager/DNDDataTypes.ts";
 import {DragEndEvent, DragMoveEvent, DragOverlay, DragStartEvent, UniqueIdentifier} from "@dnd-kit/core";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "@/store";
 import genNewItems, {findActiveItem} from "@/components/dnd-components/dndManager/NewItemGenerationManager.ts";
 import cloneInsertActiveItem from "@/components/dnd-components/dndManager/CloneItemInsertManger.ts";
@@ -12,7 +12,7 @@ import MyDNDContext from "@/components/dnd-components/MyDNDContext.tsx";
 import ControlNestWidget from "@/components/control/ControlNestWidget.tsx";
 import DragOverlayContent from "@/components/home-components/page-body-components/DragOverlayContent.tsx";
 import CustomSchemaTemplate from "@/components/control/CustomSchemaTemplate.tsx";
-import {selectCurFields} from "@/store/mainReducer.ts";
+import {selectCurFields, setLastDeletedComponentId} from "@/store/mainReducer.ts";
 import JSONPretty from 'react-json-pretty';
 import {produce} from "immer";
 
@@ -31,28 +31,58 @@ export default function PageBody(){
     // const handlerUpdateTableChildData=(list:any[])=>{
     //     setWidgets(list);
     // }
-
+    const dispatch=useDispatch();
     const curComponent=useSelector((state:RootState)=>state.main.curComponent);
+    const lastDeletedComponentId=useSelector((state:RootState)=>state.main.lastDeletedComponentId);
     const curFields=useSelector((state:RootState)=>selectCurFields(state));
 
     const handlerUpdateList=(items:IItem[])=>{
         // setItems(items);
+        console.log(items,"PageBody中处理针对内层writable变化引起的items改变");
     }
+
+    //只是执行setLastDeletedComponentId在deleteWidget方法中，还没有从顶层的items中做删除
+    function recurseRemoveLastDeletedComponent(inputItems:IItem[]|null,isFind=false){
+        if(!inputItems||inputItems.length===0){
+            return;
+        }
+        const matchedIndex=inputItems.findIndex(item=>item.id===lastDeletedComponentId);
+        if(matchedIndex!==-1){
+            inputItems.splice(matchedIndex,1);
+            isFind=true;
+            return;
+        }
+        for(let item of inputItems){
+            if(item.children){
+                recurseRemoveLastDeletedComponent(item.children,isFind);
+                if(isFind){
+                    return;
+                }
+            }
+        }
+    }
+
 
     useEffect(() => {
         console.log("当前的curComponent已经变了","id是",curComponent?.id);
         if(!curComponent?.id){
+            if(lastDeletedComponentId){
+                console.log("拿到上次删除的id值了",lastDeletedComponentId);
+                const itemsAfterDelete=produce(items,(draft)=>{
+                    recurseRemoveLastDeletedComponent(draft);
+                });
+                setItems(itemsAfterDelete);
+                dispatch(setLastDeletedComponentId(""));
+            }
             return;
         }
         const newItems = produce(items,(draft)=>{
-            function recurseMatchAndUpdateCurComponent(inputItems:IItem[]|null){
+            function recurseMatchAndUpdateCurComponent(inputItems:IItem[]|null,isFind=false){
                 if(!inputItems||inputItems.length===0){
                     return;
                 }
                 for(let item of inputItems){
                     if(item.id===curComponent.id){
-                        // console.log(item.title,"item.title");
-                        // item.title=curComponent.title;
                         for(let key in item){
                             if(item.hasOwnProperty(key)){
                                 if(curComponent[key]!==null&&curComponent[key]!==undefined){
@@ -60,13 +90,16 @@ export default function PageBody(){
                                 }
                             }
                         }
+                        isFind=true;
                         return;
                     }
                     if(item.children){
-                        recurseMatchAndUpdateCurComponent(item.children);
+                        recurseMatchAndUpdateCurComponent(item.children,isFind);
+                        if(isFind){
+                            return;
+                        }
                     }
                 }
-                return;
             }
             recurseMatchAndUpdateCurComponent(draft);
         });
