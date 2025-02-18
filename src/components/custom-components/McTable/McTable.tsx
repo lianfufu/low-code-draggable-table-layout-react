@@ -3,6 +3,10 @@ import {useSelector} from "react-redux";
 import {RootState} from "@/store";
 import {getRandomCode} from "@/utils/globalMethods.ts";
 import isEqual from "lodash/isEqual";
+import styles from "./McTable.module.scss"
+import {produce} from "immer";
+import McTableItemContainer from "@/components/custom-components/McTable/TableComponents/McTableItemContainer.tsx";
+import ControlNestWidget from "@/components/control/ControlNestWidget.tsx";
 
 export type McTablePropsType={
     children?: any[],
@@ -123,6 +127,10 @@ export default function McTable(props:McTablePropsType&McTableEventPropsType){
         const res = [];
         const tdRowColIndexToRemove = [] as any[];
 
+        if(tabData.length===0){
+            return [[]];
+        }
+
         for (let i = 0; i < rowCount; i++) {
             res[i]=[] as any[];
             for(let j=0; j<colCount; j++) {
@@ -135,11 +143,12 @@ export default function McTable(props:McTablePropsType&McTableEventPropsType){
                     continue;
                 }
                 //获取component.json中预定义的匹配rowindex和colindex的项
+                console.log(tabData,Array.isArray(tabData),"tableData为空？");
                 const matchedChild = tabData.filter(item => item.rowIndex === i && item.colIndex === j);
                 if (matchedChild && matchedChild.length > 0) {
                     if (matchedChild.length === 1) {
                         const first = matchedChild[0];
-                        first.id = getRandomCode(8);
+                        // first.id = getRandomCode(8);
                         res[i][j] = [first];
                     } else {
                         res[i][j] = matchedChild;
@@ -171,6 +180,7 @@ export default function McTable(props:McTablePropsType&McTableEventPropsType){
                 }
             }
         }
+        console.log("res","tableDataArr2",res,tabData.length);
         return res;
     },[tabData]);
 
@@ -234,8 +244,59 @@ export default function McTable(props:McTablePropsType&McTableEventPropsType){
         }
     }
 
+    function doUpdateWidgetsForDel(rowIndex:number, colIndex:number) {
+        const target = tabData.findIndex(item => item.rowIndex === rowIndex && item.colIndex === colIndex);
+        if (target !== -1) {
+            // this.tabData.splice(target,1);//初始版本写法
+            //下面是优化，针对当删除到最后一个内容时，并不真正删除，而是将其变成MCTextContainer
+            const allMatchedItems = tabData.filter(item => item.rowIndex === rowIndex && item.colIndex === colIndex);
+            const colSpan = allMatchedItems[0].colSpan;
+            const rowSpan = allMatchedItems[0].rowSpan;
+            const newItems=produce(tabData,(draft)=>{
+                draft.splice(target, 1);
+                if (allMatchedItems.length === 1) {
+                    console.log(allMatchedItems, "进来了计算allMatchedItems");
+                    draft.push({
+                        id: getRandomCode(8),
+                        component: "MCTextContainer",
+                        rowIndex: rowIndex,
+                        colIndex: colIndex,
+                        rowSpan: rowSpan,
+                        colSpan: colSpan,
+                    });
+                }
+            });
+            setTabData(newItems);
+        }
+    }
 
+    //当拖入新的物料数据时，执行此方法
+    function doUpdateWidgets(newValue:any) {
+        const newItems = [];//加入新对象的逻辑
+        if (newValue && Array.isArray(newValue)) {
+            for (const item of newValue) {
+                if (item.id) {
+                    const target = tabData.find(item2 => item2.id === item.id);
+                    if (!target) {
+                        newItems.push(item);
+                    }
+                }
+            }
+        }
+        if(newItems.length===0)
+            return;
 
+        const newTabData=produce(tabData,(draft)=>{
+            newItems.forEach(item => {
+                draft.push(item);
+            });
+        });
+        setTabData(newTabData);
+        console.log("监听item2的改变", newValue, newItems);
+    }
+    function isSelectedCell(){
+        return false;
+    }
 
 
     //清除所有选择的单元格和隐藏操作栏
@@ -251,5 +312,73 @@ export default function McTable(props:McTablePropsType&McTableEventPropsType){
         console.log("执行了清理单元格所有的，为何？");
         setIsShowOperationBar(false);
     }
+
+    //采用事件委托的方式，控制点击cell-operation-bar组件内部的哪些元素以后，不再去显示操作栏，即点击删除行/列按钮后，不再显示操作栏。
+    function sourceTargetClickIsTD() {
+        const isClickTDViewFromWrapperDiv = event.target.nodeName === "TD" || event.target.nodeName === "TR" || event.target.nodeName === "TBODY";//如果是false，才有可能选择的是来自于cell-operation-bar组件内部的哪些元素
+        if (!isClickTDViewFromWrapperDiv) {
+            const isFromChild = event.target.closest('.cell-operation-bar') && !event.target.closest('.delete-row') && !event.target.closest('.delete-col');
+            if (!isFromChild) {
+                setIsShowOperationBar(false);
+                setIsClickedAtOperationBar(false);
+                console.log("点击了target的类型为", event.target);
+            } else {
+                console.log("dianle来自cell-operation-bar类");
+            }
+
+        }
+    }
+    //交互事件
+    function showTableConfig(){
+
+    }
+    function tdMouseDown(){
+
+    }
+    function tdMouseUp(){
+
+    }
+    function tdMouseMove(){
+
+    }
+
+
+    return (
+        <div className={styles.wrap} style={{paddingBottom:padding+'px',paddingTop:padding+'px'}} onClick={sourceTargetClickIsTD}>
+            <table ref={mytable} className={styles.table} border={isShowBorder?1:0}>
+                <colgroup>
+                    {columnWidths.map((item,index)=>(
+                        <col key={index} style={{width:item+"%"}}/>
+                    ))}
+                </colgroup>
+                <tbody>
+                    {
+                        (tableDataArr2||[[]]).map((item,index)=>(
+                            <tr key={index} style={{height:rowHeights[index]+'px'}}>
+                                {
+                                    item.map((item2,index2)=>{
+                                        return (!item2||item2.length===0)?"":
+                                            <td key={index2} data-rowindex={index} data-colindex={index2} valign={model}
+                                                data-colspan={item2[0]?item2[0].colSpan:1} data-rowspan={item2[0]?item2[0].rowSpan:1}
+                                                colSpan={item2[0]?item2[0].colSpan:1} rowSpan={item2[0]?item2[0].rowSpan:1}
+                                            className={`${styles["resizable-cell"]} ${styles["flex-td"]} ${isShowBorder?'':styles['no-border']} ${isSelectedCell(index,index2)?styles['selected-cell']:''}`}
+                                            style={getCellStyle(columnWidths,item2,index2)} onMouseDown={tdMouseDown} onMouseUp={tdMouseUp} onMouseMove={tdMouseMove}
+                                            onClick={()=>showTableConfig(item2,index,index2,item2[0]?item2[0].rowSpan:1,item2[0]?item2[0].colSpan:1)}>
+                                                <McTableItemContainer>
+                                                    <ControlNestWidget cellColSpan={item2[0]?item2[0].colSpan:1} cellRowSpan={item2[0]?item2[0].rowSpan:1}
+                                                                       cellColIndex={index2} cellRowIndex={index} isWidget={true}
+                                                                       updateTableChildData={()=>doUpdateWidgetsForDel(index,index2)}
+                                                                       list={item2} updateList={doUpdateWidgets}/>
+                                                </McTableItemContainer>
+                                            </td>
+                                    })
+                                }
+                            </tr>
+                        ))
+                    }
+                </tbody>
+            </table>
+        </div>
+    )
 
 }

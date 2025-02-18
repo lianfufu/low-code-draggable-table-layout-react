@@ -64,12 +64,46 @@ function insertActiveItem(
                     activeIndex < overIndex ? overItemIndex + 1 : overItemIndex
                 newItems.splice(startIndex, 0, ActiveItem)
             }
+            updateActiveColAndRowInfos(ActiveItem,overItem as IItem);
         }else{
             overItem!.children=[ActiveItem];
         }
     }
 
     return newItems.filter((item) => !item.isActive)
+}
+
+function updateActiveColAndRowInfos(activeItem:IItem,overItem:IItem):IItem[] {
+    if(overItem.colIndex!==undefined){
+        activeItem.rowIndex=overItem.rowIndex;
+        activeItem.colIndex=overItem.colIndex;
+        activeItem.rowSpan=overItem.rowSpan;
+        activeItem.colSpan=overItem.colSpan;
+        if(!activeItem.cellFields){
+            activeItem.cellFields={
+                "contentBgc": {
+                    "label": "背景色",
+                    "type": "color",
+                    "value": "#fff"
+                },
+                "padding": {
+                    "label": "内边距",
+                    "type": "number",
+                    "value": 3
+                }
+            }
+        }
+        if(!activeItem.cellFieldVal){
+            activeItem.cellFieldVal={};
+            for (const cellFieldsKey in activeItem.cellFields) {
+                if(activeItem.cellFields.hasOwnProperty(cellFieldsKey)){
+                    if(activeItem.cellFields[cellFieldsKey].value){
+                        activeItem.cellFieldVal[cellFieldsKey]=activeItem.cellFields[cellFieldsKey].value;
+                    }
+                }
+            }
+        }
+    }
 }
 
 export default function genNewItems(

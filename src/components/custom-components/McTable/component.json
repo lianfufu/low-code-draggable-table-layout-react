@@ -5,6 +5,7 @@
   "icon":"icon-daohang",
   "children": [
     {
+      "id": "21341546246354",
       "component": "McTitle",
       "name": "标题",
       "icon": "icon-biaotizujian",
@@ -36,6 +37,7 @@
       }
     },
     {
+      "id": "21341588846354",
       "component": "McTitle",
       "name": "标题",
       "icon": "icon-biaotizujian",
@@ -68,6 +70,7 @@
     },
     {
       "component": "McTitle",
+      "id": "21341546246664",
       "name": "标题",
       "icon": "icon-biaotizujian",
       "title": "defaultText",
@@ -99,6 +102,7 @@
     },
     {
       "component": "McTitle",
+      "id": "555341546246354",
       "name": "标题",
       "icon": "icon-biaotizujian",
       "title": "defaultText",
@@ -130,6 +134,7 @@
     },
     {
       "component": "McTitle",
+      "id": "29991546246354",
       "name": "标题",
       "icon": "icon-biaotizujian",
       "title": "defaultText",

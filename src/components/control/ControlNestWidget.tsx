@@ -114,14 +114,22 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
                 writableList?.length>0? list?.map(element=>(
                         element.component!=='MCTextContainer'&&
                         <WidgetShape deleteWidget={deleteWidget} curComponent={element} key={element.id} name={element.name}>
-                            <McComponent is={element.component} curComponent={element} id={element.id}>
-                                            {element.component==="McContainer"&&
-                                                <ControlNestWidget parentId={element.id} list={element.children}
-                                                                updateList={(value) => {
-                                                                    updateList(value);
-
-                                                                }} isWidget={true}/>}
-                            </McComponent>
+                            {
+                                element.component!=='McTable'&&element.component!=='MCTextContainer'&&
+                                <McComponent is={element.component} curComponent={element} id={element.id}>
+                                    <ControlNestWidget parentId={element.id} list={element.children}
+                                       updateList={(value) => {
+                                           updateList(value);
+                                       }} isWidget={true}/>
+                                </McComponent>
+                            }
+                            {
+                                element.component==='McTable'&&
+                                <McComponent is={element.component} curComponent={element} id={element.id}
+                                    colCount={element.colCount}  updateColCount={(value)=>{element.colCount=value}}
+                                    rowCount={element.rowCount} updateRowCount={(value)=>{element.rowCount=value}}
+                                    children={element.children} updateChildren={(value)=>{element.children=value}}/>
+                            }
                         </WidgetShape>
                     )):
                     <DropArea parentId={parentId||"zero"} height={isWidget?"30px":"800px"}>{isWidget?"":"drop here"}</DropArea>

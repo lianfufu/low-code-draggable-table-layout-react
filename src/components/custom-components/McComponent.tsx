@@ -6,6 +6,7 @@ import McContainer from "@/components/custom-components/McContainer/McContainer.
 import Sortable from "@/components/dnd-components/Sortable.tsx";
 import McImg from "@/components/custom-components/McImg/McImg.tsx";
 import McTab from "@/components/custom-components/McTab/McTab.tsx";
+import McTable from "@/components/custom-components/McTable/McTable.tsx";
 
 type McComponentPropsType={
     children?:React.ReactNode,
@@ -18,7 +19,8 @@ const ComponentsCollection={
     McContainer,
     McTitle,
     McImg,
-    McTab
+    McTab,
+    McTable
 }
 export default function McComponent(props:McComponentPropsType&{is:string}){
     const {curComponent,id="",...otherProps}=props;
@@ -34,7 +36,10 @@ export default function McComponent(props:McComponentPropsType&{is:string}){
     const {children,...curComponentExceptChildren}=curComponent;
     return (
         <Sortable id={memoId} curComponent={curComponent}>
-            <InnerCompnent {...otherProps} {...curComponentExceptChildren}/>
+            {
+                props.is!=="McTable"?<InnerCompnent {...otherProps} {...curComponentExceptChildren}/>
+                    :<InnerCompnent {...otherProps} {...curComponentExceptChildren} children={children}/>
+            }
         </Sortable>
     )
 }
