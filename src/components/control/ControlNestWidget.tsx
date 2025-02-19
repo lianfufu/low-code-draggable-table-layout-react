@@ -112,7 +112,7 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
         <div className={isWidget?'nest-widget-height':'outer-widget-height'}>
             {
                 writableList?.length>0? list?.map(element=>(
-                        element.component!=='MCTextContainer'&&
+                        element.component!=='McTextContainer'?
                         <WidgetShape deleteWidget={deleteWidget} curComponent={element} key={element.id} name={element.name}>
                             {
                                 element.component!=='McTable'&&element.component!=='MCTextContainer'&&
@@ -130,7 +130,13 @@ export default function ControlNestWidget({isWidget=false,list=[],cellRowSpan=Nu
                                     rowCount={element.rowCount} updateRowCount={(value)=>{element.rowCount=value}}
                                     children={element.children} updateChildren={(value)=>{element.children=value}}/>
                             }
-                        </WidgetShape>
+                        </WidgetShape>:
+                            <McComponent is={element.component} curComponent={element} id={element.id}>
+                                <ControlNestWidget parentId={element.id} list={element.children}
+                                                   updateList={(value) => {
+                                                       updateList(value);
+                                                   }} isWidget={true}/>
+                            </McComponent>
                     )):
                     <DropArea parentId={parentId||"zero"} height={isWidget?"30px":"800px"}>{isWidget?"":"drop here"}</DropArea>
             }

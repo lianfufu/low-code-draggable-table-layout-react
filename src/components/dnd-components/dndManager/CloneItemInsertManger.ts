@@ -1,6 +1,7 @@
 //用于控制左侧区域拖入右侧区域的复制插入
 
 import { IItem } from "./DNDDataTypes.ts"
+import {updateActiveColAndRowInfos} from "@/components/dnd-components/dndManager/NewItemGenerationManager.ts";
 
 export default function cloneInsertActiveItem(
     items: IItem[],
@@ -38,6 +39,7 @@ export default function cloneInsertActiveItem(
             } else if (overItemIndex > -1) {
                 newItems.splice(overItemIndex + 1,0,clonedItem);
             }
+            updateActiveColAndRowInfos(clonedItem,overItem as IItem);
         }else{
             overItem!.children=[clonedItem];
         }

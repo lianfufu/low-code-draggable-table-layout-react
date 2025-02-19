@@ -66,6 +66,10 @@ function insertActiveItem(
             }
             updateActiveColAndRowInfos(ActiveItem,overItem as IItem);
         }else{
+            if(overItem?.colIndex!==undefined){
+                console.log(overItem,"添加到子元素的情况");
+            }
+            console.log(overItem,"添加到子元素的情况");
             overItem!.children=[ActiveItem];
         }
     }
@@ -73,7 +77,7 @@ function insertActiveItem(
     return newItems.filter((item) => !item.isActive)
 }
 
-function updateActiveColAndRowInfos(activeItem:IItem,overItem:IItem):IItem[] {
+export function updateActiveColAndRowInfos(activeItem:IItem,overItem:IItem):IItem[] {
     if(overItem.colIndex!==undefined){
         activeItem.rowIndex=overItem.rowIndex;
         activeItem.colIndex=overItem.colIndex;

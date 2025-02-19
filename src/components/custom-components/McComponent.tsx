@@ -7,6 +7,7 @@ import Sortable from "@/components/dnd-components/Sortable.tsx";
 import McImg from "@/components/custom-components/McImg/McImg.tsx";
 import McTab from "@/components/custom-components/McTab/McTab.tsx";
 import McTable from "@/components/custom-components/McTable/McTable.tsx";
+import McTextContainer from "@/components/custom-components/McTable/TableComponents/McTextContainer.tsx";
 
 type McComponentPropsType={
     children?:React.ReactNode,
@@ -20,7 +21,8 @@ const ComponentsCollection={
     McTitle,
     McImg,
     McTab,
-    McTable
+    McTable,
+    McTextContainer
 }
 export default function McComponent(props:McComponentPropsType&{is:string}){
     const {curComponent,id="",...otherProps}=props;

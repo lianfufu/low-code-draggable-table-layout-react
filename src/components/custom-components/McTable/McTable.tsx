@@ -171,11 +171,12 @@ export default function McTable(props:McTablePropsType&McTableEventPropsType){
                 }else{
                     res[i][j] = [{
                         id: getRandomCode(8),
-                        component: "MCTextContainer",
+                        component: "McTextContainer",
                         rowIndex: i,
                         colIndex: j,
                         rowSpan: 1,
                         colSpan: 1,
+                        children:[]
                     }];
                 }
             }

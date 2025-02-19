@@ -188,6 +188,7 @@ function ManagerDNDItems(){
         //判断拖入的是否为drop area
         let isInsertIntoChildren=false;
         let parentId="";
+        console.log(over,"activeItem66666666666666666");
         if((over.id as string).includes("container")){
             parentId = (over.id as string).split("container")[1];
             isInsertIntoChildren=true;
